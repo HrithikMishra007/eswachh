@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import logo from "../assets/emblem.png"
 import logo2 from "../assets/envlogo11-1.png"
 import logoFinal from "../assets/logoFinal.png"
@@ -6,6 +6,11 @@ import { Link, useNavigate } from "react-router-dom";
 import { ChatState } from "../Context/ChatProvider";
 import { BellIcon, ChevronDownIcon } from "@chakra-ui/icons";
 import { Avatar } from "@chakra-ui/avatar";
+import SuprSendInbox from '@suprsend/react-inbox'
+import CryptoJS from 'crypto-js';
+
+
+
 import {
   Menu,
   MenuButton,
@@ -13,8 +18,27 @@ import {
   MenuItem,
   MenuList,
 } from "@chakra-ui/menu";
-
 import { Button } from "@chakra-ui/react";
+
+
+let secret = "hrithik"
+let distinct_id="1234"
+
+function hmacRawUrlSafeBase64String(distinct_id, secret) {
+  const hmac = CryptoJS.algo.HMAC.create(CryptoJS.algo.SHA256, secret);
+  hmac.update(distinct_id);
+  const hash = hmac.finalize();
+  return hash.toString(CryptoJS.enc.Base64)
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=+$/, '');
+}
+
+
+
+
+
+
 const Navbar = () => {
   const navigate = useNavigate();
 
@@ -37,6 +61,14 @@ const Navbar = () => {
   }, [user]);
 
   console.log(user);
+  const [subscriberId, setSubscriberId] = useState('');
+  const secret = 'hrithik';
+  const distinctId = '1234';
+
+  useEffect(() => {
+    const computedSubscriberId = hmacRawUrlSafeBase64String(distinctId, secret);
+    setSubscriberId(computedSubscriberId);
+  }, [distinctId, secret]);
   return (
     <div>
       <div className="flex flex-col fixed z-40">
@@ -128,6 +160,18 @@ const Navbar = () => {
                 </li> */}
                 <li className=" hover:text-deepgreen hover:underline ">
                   <Link to="/rewards">Rewards</Link>
+                </li>
+                <li className=" hover:text-deepgreen hover:underline ">
+                  {/* bell icon<SuprSendInbox
+                     workspaceKey= "8mszakP9886GtG1UC55W"
+                     subscriberId= ""
+                       distinctId= "1234"
+                    /> */}
+                     <SuprSendInbox
+      workspaceKey="8mszakP9886GtG1UC55W"
+      subscriberId={subscriberId}
+      distinctId={distinctId}
+    />
                 </li>
               </ul>
             </nav>
